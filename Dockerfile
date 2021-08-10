@@ -12,6 +12,8 @@ RUN /usr/lib/docker-helpers/apt-setup && \
     /usr/lib/docker-helpers/apt-upgrade && \
     apt-get --assume-yes install \
         curl \
+        entr \
+        procps \
         python3 \
         python3-dev \
         python3-flask \

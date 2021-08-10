@@ -16,6 +16,13 @@ then
     /app/flask-migrate
 fi
 
+# If FLASK_RELOAD was supplied, start a secondary process to gracefully reload uswgi
+# if any of it's files get modified.
+if [ "${FLASK_RELOAD}" = true ]
+then
+    (find /app | entr -p -s "echo 'Entr: reloading...' && pkill --signal SIGHUP uwsgi" &)
+fi
+
 cd "${APPDIR:-/app}"
 
 uwsgi \
