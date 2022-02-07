@@ -18,6 +18,7 @@ RUN /usr/lib/docker-helpers/apt-setup && \
         python3-dev \
         python3-flask \
         python3-pip \
+        python3-pytest \
         python3-setuptools \
         python3-venv \
         python3-wheel \
