@@ -36,3 +36,18 @@ By default, you can manually reload the application by touching `/tmp/reload-app
     docker run --rm -it -v $(pwd)/myapp:/app -e FLASK_APP=myapp:app -e FLASK_RELOAD=true -p 127.0.0.1:8080:8080 ghcr.io/seravo/flask:latest
 
 Now, if you modify the code in `myapp.py` and save, the app will reload and your changes will be in effect.
+
+## Tests
+
+Tests can be ran by executing `pytest-3` inside the container. For example, to run the tests for `hello.py` you would do it like this:
+
+    docker exec -t {CONTAINER_NAME} pytest-3 hello.py -vv
+
+Test output should look something like this:
+
+    platform linux -- Python 3.9.2, pytest-6.0.2, py-1.10.0, pluggy-0.13.0 -- /usr/bin/python3
+    cachedir: .pytest_cache
+    rootdir: /app
+    collected 1 item
+
+    hello.py::test_hello PASSED
