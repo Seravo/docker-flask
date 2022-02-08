@@ -1,0 +1,24 @@
+name: 'Lint Python code'
+
+on: [push, pull_request]
+
+jobs:
+  lint-python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ['3.6', '3.8', '3.10']
+    steps:
+      - name: Setup repository
+        uses: actions/checkout@v2
+
+      - name: Set up python ${{ matrix.python_version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install essential tools
+        run: pip install flake8
+
+      - name: Run flake8
+        run: flake8
