@@ -6,7 +6,6 @@ ARG APT_PROXY
 
 ENV APPDIR /app
 ENV VEDIR /ve
-ENV FLASK_APP hello:app
 
 RUN /usr/lib/docker-helpers/apt-setup && \
     /usr/lib/docker-helpers/apt-upgrade && \
@@ -31,7 +30,6 @@ RUN mkdir -p "${APPDIR}" "${VEDIR}"
 RUN adduser --disabled-password --gecos "user,,," user && \
     chown user "${VEDIR}"
 
-COPY hello.py "${APPDIR}/hello.py"
 COPY entrypoint.sh /entrypoint.sh
 
 WORKDIR "${APPDIR}"
