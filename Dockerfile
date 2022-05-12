@@ -1,14 +1,16 @@
 # This can be *any* Ubuntu/Debian base image with sufficient Python3 version
 # available
-FROM docker.io/ypcs/debian:bullseye
+FROM ghcr.io/seravo/ubuntu:jammy
 
 ARG APT_PROXY
 
 ENV APPDIR /app
 ENV VEDIR /ve
 
-RUN /usr/lib/docker-helpers/apt-setup && \
-    /usr/lib/docker-helpers/apt-upgrade && \
+RUN sed -i 's/main$/main universe/g' /etc/apt/sources.list && \
+    export DEBIAN_FRONTEND="noninteractive" && \
+    /usr/sbin/apt-setup && \
+    apt-get --assume-yes upgrade && \
     apt-get --assume-yes install \
         curl \
         entr \
@@ -23,7 +25,7 @@ RUN /usr/lib/docker-helpers/apt-setup && \
         python3-wheel \
         uwsgi \
         uwsgi-plugin-python3 && \
-    /usr/lib/docker-helpers/apt-cleanup
+    /usr/sbin/apt-cleanup
 
 RUN mkdir -p "${APPDIR}" "${VEDIR}"
 
