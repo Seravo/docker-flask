@@ -2,16 +2,20 @@
 name: Build and deploy images
 on:
   schedule:
-    # rebuild every 15th day of the month at 9:24 UTC
-    - cron: '24 9 15 * *'
+    # rebuild every Thursday at 9:24 UTC
+    - cron: '24 9 * * 3'
   push:
     branches:
       - main
       - master
+      - feature/**
+      - bugfix/**
   pull_request:
     branches:
-      - main
-      - master
+      - '*'
+
+env:
+  TAG: "${{ github.run_id }}"
 
 permissions:
   contents: read
@@ -22,10 +26,70 @@ jobs:
   build-images:
     name: Build Docker images
     runs-on: ubuntu-18.04
+    env:
+      image: ghcr.io/seravo/flask
     steps:
-      - uses: actions/checkout@v2
-      - id: build
-        uses: Seravo/actions/docker-build-and-release@main
+      - id: clone-repository
+        uses: actions/checkout@v2
+        name: Clone git repository
+
+      - id: docker-login
+        uses: Seravo/actions/docker-login@v0.11
+        name: Login to ghcr.io
+
+      # To speed up builds, try to use previously built image as cache source.
+      # However, skip this if we're running weekly scheduled build to ensure
+      # that we get latest APT versions at least once a week
+      - if: ${{ github.event_name != 'schedule' }}
+        name: Pull previously built image
+        id: docker-pull
+        uses: Seravo/actions/docker-pull@v0.11
+        with:
+          image: "${{ env.image }}"
+
+      - if: ${{ github.event_name != 'schedule' }}
+        name: Pull previously built image by commit id
+        id: docker-pull-commit
+        uses: Seravo/actions/docker-pull@v0.11
+        with:
+          image: "${{ env.image }}:${{ github.sha }}"
+        continue-on-error: true
+
+      - id: docker-build
+        uses: Seravo/actions/docker-build@v0.11
         name: Build image
         with:
-          image: ghcr.io/seravo/flask:latest
+          image: "${{ env.image }}"
+
+      - if: ${{ github.ref == 'refs/heads/master' }}
+        name: Push new image to production
+        id: docker-push-master
+        uses: Seravo/actions/docker-push@v0.11
+        with:
+          image: "${{ env.image }}"
+
+      - id: docker-tag
+        name: Tag image with run id
+        uses: Seravo/actions/docker-tag@v0.11
+        with:
+          source: "${{ env.image }}"
+          target: "${{ env.image }}:${{ env.TAG }}"
+
+      - id: docker-push
+        name: Push image with run id
+        uses: Seravo/actions/docker-push@v0.11
+        with:
+          image: "${{ env.image }}:${{ env.TAG }}"
+
+      - id: docker-tag-commit
+        name: Tag image with commit id
+        uses: Seravo/actions/docker-tag@v0.11
+        with:
+          source: "${{ env.image }}"
+          target: "${{ env.image }}:${{ github.sha }}"
+
+      - id: docker-push-commit
+        name: Push image with commit id
+        uses: Seravo/actions/docker-push@v0.11
+        with:
+          image: "${{ env.image }}:${{ github.sha }}"
