@@ -61,6 +61,14 @@ jobs:
         with:
           image: "${{ env.image }}"
 
+      - id: run-test-image
+        name: Run new image
+        run: docker run --rm -d -e FLASK_APP=hello:app -v $(pwd)/app:/app -p 127.0.0.1:8080:8080 --name flask "${{ env.image }}"
+
+      - id: run-test
+        name: Run tests against the image
+        run: curl -iLsS http://127.0.0.1:8080/
+
       - if: ${{ github.ref == 'refs/heads/master' }}
         name: Push new image to production
         id: docker-push-master
