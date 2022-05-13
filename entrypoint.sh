@@ -9,8 +9,6 @@ set -e
 [ -z "${APPDIR}" ] && echo "Error: Missing \$APPDIR!" && exit 1
 [ -z "${VEDIR}" ] && echo "Error: Missing \$VEDIR!" && exit 1
 
-UWSGI_PYTHON="python$(/usr/bin/python3 --version |awk '{print $2}' |cut -b1,3)"
-
 if [ -x "/app/flask-migrate" ]
 then
     /app/flask-migrate
@@ -26,7 +24,7 @@ fi
 cd "${APPDIR:-/app}"
 
 uwsgi \
-    --plugins "${UWSGI_PYTHON}" \
+    --plugins "python3" \
     --master \
     --processes=10 \
     --workers=5 \
