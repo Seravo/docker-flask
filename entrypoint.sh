@@ -18,7 +18,7 @@ fi
 # if any of it's files get modified.
 if [ "${FLASK_RELOAD}" = true ]
 then
-    (find /app | entr -p -s "echo 'Entr: reloading...' && pkill --signal SIGHUP uwsgi" &)
+    (find /app | entr -n -p -s "echo 'Entr: reloading...' && pkill --signal SIGHUP uwsgi" &)
 fi
 
 cd "${APPDIR:-/app}"
