@@ -42,6 +42,7 @@ uwsgi \
     --socket=":9000" \
     --http-socket=":8080" \
     --touch-reload=/tmp/reload-app \
+    --log-filter="${LOG_FILTER_REGEX}" \
     --module "${FLASK_APP}"
 
 # --profiler

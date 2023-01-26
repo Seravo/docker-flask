@@ -6,6 +6,7 @@ ARG APT_PROXY
 
 ENV APPDIR /app
 ENV VEDIR /ve
+ENV LOG_FILTER_REGEX ^((?!\/healthcheck).)*$
 
 RUN sed -i 's/main$/main universe/g' /etc/apt/sources.list && \
     export DEBIAN_FRONTEND="noninteractive" && \
