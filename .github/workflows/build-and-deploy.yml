@@ -3,7 +3,7 @@ name: Build and deploy images
 on:
   schedule:
     # rebuild every Thursday at 9:24 UTC
-    - cron: '24 9 * * 3'
+    - cron: "24 9 * * 3"
   push:
     branches:
       - main
@@ -12,10 +12,7 @@ on:
       - bugfix/**
   pull_request:
     branches:
-      - '*'
-
-env:
-  TAG: "${{ github.run_id }}"
+      - "*"
 
 permissions:
   contents: read
@@ -25,7 +22,7 @@ permissions:
 jobs:
   build-images:
     name: Build Docker images
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       image: ghcr.io/seravo/flask
     steps:
@@ -76,28 +73,19 @@ jobs:
         with:
           image: "${{ env.image }}"
 
+      - id: refname
+        name: Convert git refname to valid Docker tag
+        run: echo "::set-output name=refname::$(echo "${{ github.ref_name }}" |sed 's/\//-/g')"
+
       - id: docker-tag
         name: Tag image with run id
         uses: Seravo/actions/docker-tag@v0.11
         with:
           source: "${{ env.image }}"
-          target: "${{ env.image }}:${{ env.TAG }}"
+          target: "${{ env.image }}:${{ steps.refname.outputs.refname }}"
 
       - id: docker-push
         name: Push image with run id
         uses: Seravo/actions/docker-push@v0.11
         with:
-          image: "${{ env.image }}:${{ env.TAG }}"
-
-      - id: docker-tag-commit
-        name: Tag image with commit id
-        uses: Seravo/actions/docker-tag@v0.11
-        with:
-          source: "${{ env.image }}"
-          target: "${{ env.image }}:${{ github.sha }}"
-
-      - id: docker-push-commit
-        name: Push image with commit id
-        uses: Seravo/actions/docker-push@v0.11
-        with:
-          image: "${{ env.image }}:${{ github.sha }}"
+          image: "${{ env.image }}:${{ steps.refname.outputs.refname }}"
